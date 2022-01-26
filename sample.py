@@ -7,6 +7,7 @@ firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
-bots = db.collection("bot").stream()
-bot_list = [d.to_dict() for d in bots]
-print(bot_list)
+db.collection("test").add({"id": 123456})
+res = db.collection("test").where("id", "==", 1234567).get()
+print(res)
+print(res[0].id)
