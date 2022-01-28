@@ -1,0 +1,18 @@
+{
+    "name": "online-bot-test-backend",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "forwardPorts": [
+        8080
+    ],
+    "postCreateCommand": [
+        "uvicorn",
+        "app.main:app",
+        "--reload",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8080"
+    ]
+}
