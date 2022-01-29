@@ -6,7 +6,29 @@
     "forwardPorts": [
         8080
     ],
-    "postCreateCommand": [
+    "settings": {
+        "python.pythonPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.flake8Enabled": true,
+        "python.formatting.provider": "black",
+        "python.formatting.blackArgs": [
+            "--line-length",
+            "160"
+        ],
+        "python.linting.flake8Args": [
+            "--max-line-length",
+            "160",
+            "--ignore",
+            "E402"
+        ],
+        "editor.formatOnSave": true
+    },
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance"
+    ],
+    "onCreateCommand": "pip install -r requirements-dev.txt",
+    "postStartCommand": [
         "uvicorn",
         "app.main:app",
         "--reload",
@@ -14,5 +36,5 @@
         "0.0.0.0",
         "--port",
         "8080"
-    ]
+    ],
 }

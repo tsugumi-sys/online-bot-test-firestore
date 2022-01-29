@@ -4,6 +4,17 @@ from google.cloud.firestore import Client
 from . import schemas
 
 
+def create_bot(db: Client, bot: schemas.BotCreate) -> Optional[schemas.Bot]:
+    bot_ref = db.collection("bot").add(bot.dict())
+
+    bot_id: str = bot_ref[1].id
+    created_bot = get_bot_by_id(db, bot_id)
+    if created_bot is None:
+        return None
+    else:
+        return created_bot
+
+
 def get_bot_id(db: Client, bot: schemas.Bot) -> Optional[str]:
     bot = bot.dict()
     bot_ref: list = (
@@ -35,15 +46,16 @@ def get_bots(db: Client) -> List:
     return [i.to_dict() for i in bots]
 
 
-def create_bot(db: Client, bot: schemas.BotCreate) -> Optional[schemas.Bot]:
-    bot_ref = db.collection("bot").add(bot.dict())
+def create_record(db: Client, bot_id: str, record: schemas.PredictRecordCreate) -> Optional[schemas.PredictRecord]:
+    record_ref = db.collection(bot_id).add(record.dict())
 
-    bot_id: str = bot_ref[1].id
-    created_bot = get_bot_by_id(db, bot_id)
-    if created_bot is None:
+    record_id: str = record_ref[1].id
+    created_record = get_record(db, bot_id, record_id)
+
+    if created_record is None:
         return None
     else:
-        return created_bot
+        return created_record
 
 
 def get_record(db: Client, bot_id: str, record_id: str) -> Optional[schemas.PredictRecord]:
@@ -57,15 +69,3 @@ def get_record(db: Client, bot_id: str, record_id: str) -> Optional[schemas.Pred
 def get_records(db: Client, bot_id: str) -> List:
     record_ref = db.collection(bot_id).stream()
     return [i.to_dict() for i in record_ref]
-
-
-def create_record(db: Client, record: schemas.PredictRecordCreate, bot_id: str) -> Optional[schemas.PredictRecord]:
-    record_ref = db.collection(bot_id).add(record.dict())
-
-    record_id: str = record_ref[1].id
-    created_record = get_record(db, bot_id, record_id)
-
-    if created_record is None:
-        return None
-    else:
-        return created_record

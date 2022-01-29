@@ -24,12 +24,11 @@ class PredictRecordBase(BaseModel):
     # id does not used bacause firestore.client().set()
     bot_id: str
     timstamp: datetime
-    predict_value: float
-    open: float
-    high: float
-    low: float
+    buy_predict_value: float
+    sell_predict_value: float
+    buy_limit_price: float
+    sell_limit_price: float
     close: float
-    volume: float
 
 
 class PredictRecord(PredictRecordBase):
