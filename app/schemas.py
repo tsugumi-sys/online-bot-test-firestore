@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class BotBase(BaseModel):
-    # Id is created from firestore.client().add()
+    # Id is created from firestore.client().document("bot").add()
     name: str
     version: str
     exchange_name: str
@@ -17,13 +17,12 @@ class BotCreate(BotBase):
 
 
 class Bot(BotBase):
-    pass
-
-
-class PredictRecordBase(BaseModel):
-    # id does not used bacause firestore.client().set()
     bot_id: str
-    timstamp: datetime
+
+
+class RecordBase(BaseModel):
+    # Id is created from firestore.client().document(bot_id).add()
+    timestamp: datetime
     buy_predict_value: float
     sell_predict_value: float
     buy_limit_price: float
@@ -31,9 +30,10 @@ class PredictRecordBase(BaseModel):
     close: float
 
 
-class PredictRecord(PredictRecordBase):
+class RecordCreate(RecordBase):
     pass
 
 
-class PredictRecordCreate(PredictRecordBase):
-    pass
+class Record(RecordBase):
+    bot_id: str
+    record_id: str

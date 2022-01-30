@@ -21,7 +21,7 @@
             "--ignore",
             "E402"
         ],
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
     },
     "extensions": [
         "ms-python.python",
