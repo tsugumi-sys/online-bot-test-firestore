@@ -80,7 +80,7 @@ def create_record(bot_id: str, record: schemas.RecordCreate):
     return record
 
 
-@app.delete("/bots/{bot_id}/records/{record_id}", response_model=str)
+@app.delete("/bots/{bot_id}/records/{record_id}/", response_model=str)
 def delete_record(bot_id: str, record_id: str):
     db = get_firestore_db()
     bot = crud.get_bot_by_id(db, bot_id)

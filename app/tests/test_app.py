@@ -1,11 +1,11 @@
 from datetime import datetime
-from typing import List, Tuple
 from requests import Response
 import unittest
 from fastapi.testclient import TestClient
+from fastapi.encoders import jsonable_encoder
 
 from ..schemas import BotCreate, Bot, Record, RecordCreate
-from ..main import app, delete_record
+from ..main import app
 
 unittest.TestLoader.sortTestMethodsUsing = None
 
@@ -28,11 +28,14 @@ class TestApp(unittest.TestCase):
         res = self.client.get("/bot_id/", params=self.test_bot.dict())
         if res.status_code == 200:
             bot_id: str = res.json()
-            # Delete record if exists
-            _ = self.client.delete("/bots/", params={"bot_id": bot_id})
+            # Delete records
+            res = self.client.delete(f"/bots/{bot_id}/records/")
+
+            # Delete Bots
+            res = self.client.delete("/bots/", params={"bot_id": bot_id})
 
         self.test_record = RecordCreate(
-            timestamp=datetime.now(),
+            timestamp=datetime.now().isoformat(),
             buy_predict_value=1.0,
             sell_predict_value=1.0,
             buy_limit_price=200.0,
@@ -50,20 +53,16 @@ class TestApp(unittest.TestCase):
         res = self.client.delete("/bots/", params={"bot_id": bot_id})
         return res
 
-    def create_test_bot_and_record(self) -> Tuple[Bot, Record]:
-        bot = self.create_test_bot()
-        bot_id: str = bot.bot_id
-
-        res = self.client.post("/bots/{bot_id}/records", params={"bot_id": bot_id, "record": self.test_record.dict()})
-        print(res.status_code)
+    def create_test_record(self, bot_id: str) -> Record:
+        json_compatible_record_data = jsonable_encoder(self.test_record)
+        res = self.client.post(f"/bots/{bot_id}/records/", json=json_compatible_record_data)
         record = res.json()
 
-        return bot, Record(**record)
+        return Record(**record)
 
-    def remove_test_bot_and_record(self, bot_id: str, record_id: str) -> Tuple[Response, Response]:
-        delete_record_res = self.client.delete("/bots/{bot_id}/records/", params={"bot_id": bot_id, "record_id": record_id})
-        delete_bot_res = self.remove_test_bot(bot_id)
-        return delete_bot_res, delete_record_res
+    def remove_test_records(self, bot_id: str) -> Response:
+        res = self.client.delete(f"/bots/{bot_id}/records/")
+        return res
 
     # Tests
     def test_helper_functions(self):
@@ -71,20 +70,66 @@ class TestApp(unittest.TestCase):
         bot = self.create_test_bot()
         self.assertIsInstance(bot, Bot)
 
+        # Test create_record
+        record = self.create_test_record(bot.bot_id)
+        self.assertIsInstance(record, Record)
+        self.assertEqual(bot.bot_id, record.bot_id)
+
+        # Test remove_test_record
+        res = self.remove_test_records(bot.bot_id)
+        self.assertEqual(res.status_code, 200)
+
         # Test remove_test_bot
         res = self.remove_test_bot(bot.bot_id)
         self.assertEqual(res.status_code, 200)
 
-        # Test create_test_bot_and_record
-        bot, record = self.create_test_bot_and_record()
-        self.assertIsInstance(bot, Bot)
-        self.assertIsInstance(record, Record)
-        self.assertEqual(bot.bot_id, record.bot_id)
+    def test_create_and_delete_bot(self):
+        # Deleting a bot of a id that doesn't exsist throws 400 error.
+        res = self.client.delete("/bots/", params={"bot_id": "NotExistID"})
+        self.assertEqual(res.status_code, 400)
 
-        # # Test remove_test_bot_and_record
-        # delete_bot_res, delete_record_res = self.remove_test_bot_and_record(bot.bot_id, record.record_id)
-        # self.assertEqual(delete_bot_res.status_code, 200)
-        # self.assertEqual(delete_record_res.status_code, 200)
+        # Create bot
+        res = self.client.post("/bots/", json=self.test_bot.dict())
+        self.assertEqual(res.status_code, 200)
+        res_body: dict = res.json()
+        bot_id: str = res_body["bot_id"]
+        res_body.pop("bot_id")
+        self.assertEqual(res_body, self.test_bot.dict())
+
+        # Delete bot
+        res = self.remove_test_bot(bot_id)
+        self.assertEqual(res.status_code, 200)
+        self.assertIsInstance(res.json(), str)
+
+    def test_create_and_delete_record(self):
+        # Create bot
+        bot = self.create_test_bot()
+
+        # Deleting a record that doesn't exist throws 400 error
+        res = self.client.delete(f"/bots/{bot.bot_id}/records/DoesntExistRecord/")
+        self.assertEqual(res.status_code, 400)
+
+        # Create a record
+        json_compatible_record_data = jsonable_encoder(self.test_record)
+        res = self.client.post(f"/bots/{bot.bot_id}/records/", json=json_compatible_record_data)
+        self.assertEqual(res.status_code, 200)
+        res_body = res.json()
+        res_body.pop("bot_id")
+        record_id: str = res_body["record_id"]
+        res_body.pop("record_id")
+
+        # Timestamp format is different from request body and responce body
+        # due to json formatting.
+        res_body.pop("timestamp")
+        json_compatible_record_data.pop("timestamp")
+        self.assertEqual(res_body, json_compatible_record_data)
+
+        # Delete a record
+        res = self.client.delete(f"/bots/{bot.bot_id}/records/{record_id}/")
+        self.assertEqual(res.status_code, 200)
+
+        # Delete a bot
+        _ = self.remove_test_bot(bot.bot_id)
 
     # def remove_test_bot_and_record(self, bot_id: str, record_id: str) -> None:
     #     _ = self.client.delete("/bots/{bot_id}/records/{record_id}/", params={"bot_id": bot_id, "record_id": record_id})

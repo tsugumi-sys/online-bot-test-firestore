@@ -22,7 +22,7 @@ class Bot(BotBase):
 
 class RecordBase(BaseModel):
     # Id is created from firestore.client().document(bot_id).add()
-    timestamp: datetime
+    timestamp: datetime  # In requests and responses will be represented as a str in ISO 8601 format, like: 2008-09-15T15:53:00+05:00.
     buy_predict_value: float
     sell_predict_value: float
     buy_limit_price: float
