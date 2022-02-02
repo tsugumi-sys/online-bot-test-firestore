@@ -1,6 +1,6 @@
 .PHONY: test
 test:
-	poetry run python sample.py
+	poetry run python -m unittest -v
 
 .PHONY: run
 run:
