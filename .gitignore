@@ -1,3 +1,4 @@
 secrets/
 .venv/
 __pycache__/
+online-bot-test-backend-service-account.json

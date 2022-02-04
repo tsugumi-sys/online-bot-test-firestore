@@ -1,0 +1,21 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: online-bot-test
+spec:
+  template:
+    spec:
+      containers:
+      - image: gcr.io/online-bot-test-logging/online-bot-test:latest
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: '1'
+        ports:
+        - containerPort: '8080'
+      containerConcurrency: '80'
+      timeoutSeconds: '300'
+    metadata:
+      annotations:
+        run.googleapis.com/cpu-throttling: 'true'
+        autoscaling.knative.dev/maxScale: '100'
