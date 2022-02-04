@@ -6,7 +6,7 @@ spec:
   template:
     spec:
       containers:
-      - image: gcr.io/online-bot-test-logging/online-bot-test:latest
+      - image: us-central1-docker.pkg.dev/online-bot-test-logging/online-bot-test-backend/online-bot-test-backend-image:latest
         resources:
           limits:
             memory: 256Mi

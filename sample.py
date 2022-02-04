@@ -25,7 +25,7 @@ def make_authorized_get_request(service_url):
     return response.read()
 
 
-service_url = "https://online-bot-test-rlvpeusr2a-uc.a.run.app/docs/"
+service_url = "https://online-bot-test-rlvpeusr2a-uc.a.run.app"
 
 res = make_authorized_get_request(service_url)
 print(res)

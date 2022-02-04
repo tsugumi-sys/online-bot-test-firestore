@@ -28,6 +28,7 @@ class RecordBase(BaseModel):
     buy_limit_price: float
     sell_limit_price: float
     close: float
+    execution_list: list
 
 
 class RecordCreate(RecordBase):
