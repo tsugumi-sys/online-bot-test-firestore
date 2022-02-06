@@ -41,7 +41,7 @@ class TestApp(unittest.TestCase):
             buy_limit_price=200.0,
             sell_limit_price=199.0,
             close=1000.0,
-            execution_list=[{"sample_item": 123}],
+            other_item={"sample_item": 123},
         )
 
     # Test helper functions

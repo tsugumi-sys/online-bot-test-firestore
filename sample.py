@@ -20,6 +20,7 @@ def make_authorized_get_request(service_url):
     id_token = google.oauth2.id_token.fetch_id_token(auth_req, service_url)
 
     req.add_header("Authorization", f"Bearer {id_token}")
+    print("Authorization", f"Bearer {id_token}")
     response = urllib.request.urlopen(req)
 
     return response.read()
